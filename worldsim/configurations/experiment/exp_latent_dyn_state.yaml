@@ -1,0 +1,4 @@
+# State-conditioned stage-2 experiment. Selects LatentDynStateExperiment by
+# name; all training/validation settings inherited from exp_latent_dyn.
+defaults:
+  - exp_latent_dyn

@@ -1,0 +1,60 @@
+# Leader + REAL right-follower teleop for world_ft sim collection.
+#
+# Same as teleop_wm_leader_only.yaml, but ALSO runs the real right follower + a right-only teleop
+# solver so the follower physically mirrors the leader (like collect_data.yaml) WHILE you drive the
+# world-model sim. Run the interactive driver and the WM worker in their own terminals as before:
+#     python world_ft/leader_wm_force_feedback.py --seed-episode <same hdf5>
+#     (from HapticWorld/worldsim) python scripts/inference/wm_follower_worker.py --ckpt ... --publish-torque
+#
+# CAN CHANNELS: verify for YOUR wiring. With BOTH leader + follower dongles connected the enumeration
+# matches collect_data.yaml (right leader = can1, right follower = can3). Plugging the follower dongle
+# back in can renumber the leader too -- if the leader controller can't open can1, check `ip link`/
+# your CAN setup and adjust the --can-channel flags below.
+#
+# SAFETY: the real follower now MOVES (it mirrors the leader, and jumps to the leader pose when the
+# solver starts). Clear the workspace, home the leader near the follower's current pose first, and
+# keep a hand on the e-stop.
+
+environment:
+  - "PYTHONUNBUFFERED=1"
+
+processes:
+
+  control_redis:
+    description: Redis server (control bus)
+    command: '$([ "$(uname)" = "Darwin" ] && echo "" || echo "taskset -c 15") redis-server --save "" --appendonly no --notify-keyspace-events Kg$ --port 6379'
+    ready_log_line: "Ready to accept connections"
+    availability:
+      restart: "exit_on_failure"
+
+  leader_mit_controller_right:
+    description: openarm right leader mit controller (can1)
+    command: python nova/workers/damiao_chain_mit_controller.py --redis-port 6379 --input-name leader_right_mit_command --output-name leader_right_state --can-channel can1
+    ready_log_line: "damiao chain mit controller ready"
+    depends_on:
+      control_redis:
+        condition: process_log_ready
+    shutdown:
+      signal: 2
+
+  follower_mit_controller_right:
+    description: openarm right follower mit controller (can3)
+    command: python nova/workers/damiao_chain_mit_controller.py --redis-port 6379 --input-name follower_right_mit_command --output-name follower_right_state --can-channel can3
+    ready_log_line: "damiao chain mit controller ready"
+    depends_on:
+      control_redis:
+        condition: process_log_ready
+    shutdown:
+      signal: 2
+
+  teleop_follower_solver_right:
+    description: right follower mirrors the right leader (leader q -> follower mit_command:q + gravity comp)
+    command: python world_ft/teleop_follower_solver_right.py --redis-port 6379
+    ready_log_line: "teleop follower solver ready"
+    depends_on:
+      leader_mit_controller_right:
+        condition: process_log_ready
+      follower_mit_controller_right:
+        condition: process_log_ready
+    shutdown:
+      signal: 2

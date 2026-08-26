@@ -1,0 +1,29 @@
+environment:
+  - "PYTHONUNBUFFERED=1"
+
+processes:
+
+  perception_redis:
+    description: Redis server
+    command: >
+      redis-server --save "" --appendonly no --notify-keyspace-events Kg$ --port 6380
+    ready_log_line: "Ready to accept connections"
+    availability:
+      restart: "exit_on_failure"
+  
+  camera_head:  # jieruiweitong HDR camera specific setting: brightness -64
+    description: UVC Camera Head Worker
+    command: >
+      python -m nova.workers.uvc_camera 
+      --redis-port 6380 
+      --stream-key camera_head 
+      --dev-path /dev/video4 
+      --brightness -64
+      --vis
+    ready_log_line: "camera ready"
+    depends_on:
+      perception_redis:
+        condition: process_log_ready
+    shutdown:
+      signal: 2
+      timeout_ms: 3000

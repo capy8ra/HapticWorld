@@ -1,0 +1,36 @@
+# Leader-only control stack: redis + the right-leader damiao controller (can1) ONLY.
+#
+# Shared by the standalone interactive driver scripts (run one in its own terminal):
+#   * recorded-trajectory replay-through-hardware test:
+#       python world_ft/leader_replay_trajectory.py --seed-episode <hdf5>
+#   * milestone-2 world-model force feedback:
+#       python world_ft/leader_wm_force_feedback.py --seed-episode <hdf5>
+#         (with the worker run as `--publish-torque`)
+#
+# Do NOT also run leader_home_and_float here -- the driver script commands the leader, and
+# two things commanding the same arm would fight. The world-model worker runs separately in
+# worldsim/, seeded from the SAME episode.
+#
+# CAN: with the follower dongle unplugged the RIGHT leader is can1 (see teleop_wm.yaml).
+
+environment:
+  - "PYTHONUNBUFFERED=1"
+
+processes:
+
+  control_redis:
+    description: Redis server (control bus)
+    command: '$([ "$(uname)" = "Darwin" ] && echo "" || echo "taskset -c 15") redis-server --save "" --appendonly no --notify-keyspace-events Kg$ --port 6379'
+    ready_log_line: "Ready to accept connections"
+    availability:
+      restart: "exit_on_failure"
+
+  leader_mit_controller_right:
+    description: openarm right leader mit controller (can1 -- follower dongle removed)
+    command: python nova/workers/damiao_chain_mit_controller.py --redis-port 6379 --input-name leader_right_mit_command --output-name leader_right_state --can-channel can1
+    ready_log_line: "damiao chain mit controller ready"
+    depends_on:
+      control_redis:
+        condition: process_log_ready
+    shutdown:
+      signal: 2

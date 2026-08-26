@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.DS_Store
+data/
+outputs/
+wandb/
+# downloaded assets (fetched by checkpoints/download_assets.py)
+checkpoints/wm/
+checkpoints/policies/
+worldsim/interactive_world_sim/algorithms/common/metrics/i3d_torchscript.pt

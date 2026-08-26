@@ -1,0 +1,36 @@
+# OpenArm CAN persistent interface names (PCAN-USB Pro FD, dual-channel) -- DRAFT.
+#
+# Why: canN numbers are assigned by driver ENUMERATION ORDER, so unplugging an arm or
+# rebooting can swap which physical arm is on which canN (that is what happened when the
+# follower was removed and re-added). These rules pin a stable name to each
+# (USB port, channel) pair, independent of enumeration order.
+#
+# Identity used (both observed via `udevadm info`):
+#   * KERNELS       = USB port path (which physical USB port the dongle sits in)
+#   * ATTR{dev_id}  = channel within the dongle: 0x0 = channel 0, 0x1 = channel 1
+#
+# ASSUMED wiring on 2026-07-13 (VERIFY before trusting -- see below):
+#   USB port 3-1.2    -> LEADER   dongle  (0x0 = leader_left,   0x1 = leader_right)
+#   USB port 3-1.3.2  -> FOLLOWER dongle  (0x0 = follower_left, 0x1 = follower_right)
+#
+# VERIFY: after installing, start the teleop and move the LEADER by hand -- the FOLLOWER
+# must mirror it. If the wrong/opposite arm responds, either swap the leader_*/follower_*
+# names below, or a dongle is in a different USB port than assumed (adjust KERNELS to the
+# value from: `udevadm info -a -p /sys/class/net/<iface> | grep -m1 KERNELS`).
+#
+# CONSTRAINT: names follow the USB PORT, so keep each dongle in its current physical port
+# (label the ports). Moving a dongle to another port requires updating KERNELS here.
+#
+# Install:
+#   sudo cp projects/world_ft/99-openarm-can.rules /etc/udev/rules.d/
+#   sudo udevadm control --reload-rules
+#   # replug the dongles (or reboot), then confirm:
+#   ip -br link show type can        # expect: leader_l leader_r follower_l follower_r
+#
+# After adopting, change every `--can-channel canN` in the yaml/scripts to the NAME:
+#   follower_left=follower_l  follower_right=follower_r  leader_left=leader_l  leader_right=leader_r
+
+SUBSYSTEM=="net", ACTION=="add", KERNELS=="3-1.2:1.0",   ATTR{dev_id}=="0x0", NAME="leader_l"
+SUBSYSTEM=="net", ACTION=="add", KERNELS=="3-1.2:1.0",   ATTR{dev_id}=="0x1", NAME="leader_r"
+SUBSYSTEM=="net", ACTION=="add", KERNELS=="3-1.3.2:1.0", ATTR{dev_id}=="0x0", NAME="follower_l"
+SUBSYSTEM=="net", ACTION=="add", KERNELS=="3-1.3.2:1.0", ATTR{dev_id}=="0x1", NAME="follower_r"

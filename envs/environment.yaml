@@ -1,0 +1,36 @@
+# HapticWorld -- single environment for everything: WM training/inference,
+# ACT policy training, the no-robot simulator demo, AND the real-robot stack.
+#   conda env create -f envs/environment.yaml
+#   conda activate hapticworld
+# process-compose (used by the robot-side rigs) is a standalone binary:
+#   https://github.com/F1bonacc1/process-compose  (not needed for the no-robot demo)
+name: hapticworld
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pinocchio>=3.2      # dynamics/IK; conda-forge build includes the MJCF loader
+  - pip
+  - pip:
+      - torch>=2.7
+      - torchvision
+      - lightning==2.6.0
+      - diffusers==0.29.2
+      - accelerate
+      - einops
+      - hydra-core
+      - omegaconf
+      - wandb
+      - h5py
+      - av
+      - opencv-python
+      - numpy==1.26.4
+      - scipy
+      - matplotlib
+      - kornia==0.6.0
+      - redis
+      - typer
+      - python-can          # robot only (CAN motor bus)
+      - pyrealsense2        # robot only (head camera)
+      - huggingface_hub
+      - git+https://github.com/WangYixuan12/yixuan_utilities.git

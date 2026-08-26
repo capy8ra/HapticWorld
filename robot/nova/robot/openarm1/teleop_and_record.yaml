@@ -1,0 +1,98 @@
+environment:
+  - "PYTHONUNBUFFERED=1"
+
+processes:
+  control_redis:
+    description: Redis server
+    command: '$([ "$(uname)" = "Darwin" ] && echo "" || echo "taskset -c 15") redis-server --save "" --appendonly no --notify-keyspace-events Kg$ --port 6379'
+    ready_log_line: "Ready to accept connections"
+    # availability:
+    #   restart: "exit_on_failure"
+
+  follower_mit_controller_left:
+    description: openarm left follower mit controller
+    command: python nova/workers/damiao_chain_mit_controller.py --redis-port 6379 --input-name follower_left_mit_command --output-name follower_left_state --can-channel can2
+    ready_log_line: "damiao chain mit controller ready"
+    shutdown:
+      signal: 2
+
+  follower_mit_controller_right:
+    description: openarm right follower mit controller
+    command: python nova/workers/damiao_chain_mit_controller.py --redis-port 6379 --input-name follower_right_mit_command --output-name follower_right_state --can-channel can3
+    ready_log_line: "damiao chain mit controller ready"
+    shutdown:
+      signal: 2
+
+  leader_mit_controller_left:
+    description: openarm left leader mit controller
+    command: python nova/workers/damiao_chain_mit_controller.py --redis-port 6379 --input-name leader_left_mit_command --output-name leader_left_state --can-channel can0
+    ready_log_line: "damiao chain mit controller ready"
+    shutdown:
+      signal: 2
+
+  leader_mit_controller_right:
+    description: openarm right leader mit controller
+    command: python nova/workers/damiao_chain_mit_controller.py --redis-port 6379 --input-name leader_right_mit_command --output-name leader_right_state --can-channel can1
+    ready_log_line: "damiao chain mit controller ready"
+    shutdown:
+      signal: 2
+
+  follower_vis:
+    description: openarm teleop solver
+    command: python nova/robot/openarm1/teleop_vis.py --redis-port 6379 --left follower_left --right follower_right
+    ready_log_line: "teleop vis ready"
+    depends_on:
+      follower_mit_controller_left:
+        condition: process_log_ready
+      follower_mit_controller_right:
+        condition: process_log_ready
+
+  leader_vis:
+    description: openarm teleop solver
+    command: python nova/robot/openarm1/teleop_vis.py --redis-port 6379 --left leader_left --right leader_right
+    ready_log_line: "teleop vis ready"
+    depends_on:
+      leader_mit_controller_left:
+        condition: process_log_ready
+      leader_mit_controller_right:
+        condition: process_log_ready
+
+  follower_solver:
+    description: openarm teleop solver
+    command: python nova/robot/openarm1/teleop_follower_solver.py --redis-port 6379
+    ready_log_line: "teleop solver ready"
+    depends_on:
+      follower_mit_controller_left:
+        condition: process_log_ready
+      follower_mit_controller_right:
+        condition: process_log_ready
+      leader_mit_controller_left:
+        condition: process_log_ready
+      leader_mit_controller_right:
+        condition: process_log_ready
+
+  leader_solver:
+    description: openarm teleop solver
+    command: python nova/robot/openarm1/teleop_leader_solver.py --redis-port 6379
+    ready_log_line: "teleop solver ready"
+    depends_on:
+      follower_mit_controller_left:
+        condition: process_log_ready
+      follower_mit_controller_right:
+        condition: process_log_ready
+      leader_mit_controller_left:
+        condition: process_log_ready
+      leader_mit_controller_right:
+        condition: process_log_ready
+      follower_solver:
+        condition: process_log_ready
+
+  # side camera
+  realsense_publisher_side:
+    description: openarm realsense publisher
+    command: python nova/workers/realsense_camera.py --redis-port 6379 --serial 324422301217
+
+  # head camera
+  realsense_publisher_head:
+    description: openarm realsense publisher
+    command: python nova/workers/realsense_camera.py --redis-port 6379 --serial 324422300172

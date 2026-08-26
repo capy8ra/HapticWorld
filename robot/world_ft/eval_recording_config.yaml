@@ -1,0 +1,38 @@
+# Streams recorded per eval rollout (low_dim_npy_recorder, RIGHT-arm-only eval stack).
+# Used by the recorder processes in learning/eval.yaml; recording is started/stopped by
+# eval_controller.py --save (ENTER -> s). Video (camera_head.mp4) is recorded separately
+# by video_recorder.py on the perception bus.
+low_dim:
+  follower_right_state:timestamp:
+    dtype: np.ndarray
+  follower_right_state:actual_angle_rad:
+    dtype: np.ndarray
+  follower_right_state:actual_velocity_radps:
+    dtype: np.ndarray
+  follower_right_state:actual_torque_nm:
+    dtype: np.ndarray
+
+  follower_right_mit_command:timestamp:
+    dtype: float
+  follower_right_mit_command:kp:
+    dtype: np.ndarray
+  follower_right_mit_command:kd:
+    dtype: np.ndarray
+  follower_right_mit_command:q:
+    dtype: np.ndarray
+  follower_right_mit_command:dq:
+    dtype: np.ndarray
+  follower_right_mit_command:tau:
+    dtype: np.ndarray
+
+  # interaction torque published by eval_controller (the torque policies' obs)
+  follower_controller_state:timestamp:
+    dtype: float
+  follower_controller_state:tau_interaction_R:
+    dtype: np.ndarray
+
+  # the policy's raw output: 20-step commanded-q chunks + their timestamps
+  model_inference:action_timestamp:
+    dtype: np.ndarray
+  model_inference:action_desired_qpos_right:
+    dtype: np.ndarray

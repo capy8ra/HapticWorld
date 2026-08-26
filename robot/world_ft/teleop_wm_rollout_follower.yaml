@@ -1,0 +1,76 @@
+# Real-follower WM rollout rig: SAME robot flow as data collection, but ` starts
+# the SIMULATOR instead of the recorders.
+#
+#   terminal 1 (hapticworld):  process-compose -f world_ft/teleop_wm_rollout_follower.yaml
+#   terminal 2 (from HapticWorld/worldsim):
+#       python scripts/inference/wm_follower_worker.py \
+#           --ckpt <stage2 last.ckpt> --stage3-ckpt <stage3 last.ckpt> \
+#           --seed-episode <converted hdf5> --conducted
+#
+# Flow (identical muscle memory to collect_wipe.yaml):
+#   free-move -> h (home) -> ENTER (grasp eraser) -> ENTER -> ` = START ROLLOUT
+#   s = stop rollout + re-home (sim saves + resets to seed)
+#   d = discard rollout, sim resets + re-arms; robot keeps teleoping (` again, or s)
+#
+# Leader force feedback comes from the REAL follower (wipe_solver bilateral loop, as
+# in collection); the sim runs as a synchronized passive twin -- do NOT pass
+# --publish-torque to the worker here.
+#
+# CAN: both dongles in -> leader_right=can1, follower_right=can3 (verify: ip link).
+# SAFETY: the follower moves and jumps to the leader pose when the solver starts.
+
+environment:
+  - "PYTHONUNBUFFERED=1"
+
+processes:
+
+  control_redis:
+    description: Redis server (control bus)
+    command: '$([ "$(uname)" = "Darwin" ] && echo "" || echo "taskset -c 15") redis-server --save "" --appendonly no --notify-keyspace-events Kg$ --port 6379'
+    ready_log_line: "Ready to accept connections"
+    availability:
+      restart: "exit_on_failure"
+
+  leader_mit_controller_right:
+    description: openarm right leader mit controller (can1)
+    command: python nova/workers/damiao_chain_mit_controller.py --redis-port 6379 --input-name leader_right_mit_command --output-name leader_right_state --can-channel can1
+    ready_log_line: "damiao chain mit controller ready"
+    depends_on:
+      control_redis:
+        condition: process_log_ready
+    shutdown:
+      signal: 2
+
+  follower_mit_controller_right:
+    description: openarm right follower mit controller (can3)
+    command: python nova/workers/damiao_chain_mit_controller.py --redis-port 6379 --input-name follower_right_mit_command --output-name follower_right_state --can-channel can3
+    ready_log_line: "damiao chain mit controller ready"
+    depends_on:
+      control_redis:
+        condition: process_log_ready
+    shutdown:
+      signal: 2
+
+  wipe_solver:
+    description: collection-identical teleop + homing + eraser-grasp state machine
+    command: python world_ft/wipe_solver.py --redis-port 6379
+    ready_log_line: "wipe solver ready"
+    depends_on:
+      follower_mit_controller_right:
+        condition: process_log_ready
+      leader_mit_controller_right:
+        condition: process_log_ready
+    shutdown:
+      signal: 2
+
+  wm_rollout_conductor:
+    description: "` / s / d keys -> solver (collection behavior) + WM worker (sim gate)"
+    command: python world_ft/wm_rollout_conductor.py --redis-port 6379
+    ready_log_line: "wm rollout conductor ready"
+    depends_on:
+      control_redis:
+        condition: process_log_ready
+      wipe_solver:
+        condition: process_log_ready
+    shutdown:
+      signal: 2

@@ -1,0 +1,62 @@
+low_dim:
+  follower_left_state:timestamp:
+    dtype: np.ndarray
+  follower_left_state:actual_angle_rad:
+    dtype: np.ndarray
+  follower_left_state:actual_velocity_radps:
+    dtype: np.ndarray
+  follower_left_state:actual_torque_nm:
+    dtype: np.ndarray
+  
+  follower_right_state:timestamp:
+    dtype: np.ndarray
+  follower_right_state:actual_angle_rad:
+    dtype: np.ndarray
+  follower_right_state:actual_velocity_radps:
+    dtype: np.ndarray
+  follower_right_state:actual_torque_nm:
+    dtype: np.ndarray
+  
+  follower_left_mit_command:timestamp:
+    dtype: float
+  follower_left_mit_command:kp:
+    dtype: np.ndarray
+  follower_left_mit_command:kd:
+    dtype: np.ndarray
+  follower_left_mit_command:q:
+    dtype: np.ndarray
+  follower_left_mit_command:dq:
+    dtype: np.ndarray
+  follower_left_mit_command:tau:
+    dtype: np.ndarray
+
+  follower_right_mit_command:timestamp:
+    dtype: float
+  follower_right_mit_command:kp:
+    dtype: np.ndarray
+  follower_right_mit_command:kd:
+    dtype: np.ndarray
+  follower_right_mit_command:q:
+    dtype: np.ndarray
+  follower_right_mit_command:dq:
+    dtype: np.ndarray
+  follower_right_mit_command:tau:
+    dtype: np.ndarray
+
+  leader_left_state:timestamp:
+    dtype: np.ndarray
+  leader_left_state:actual_angle_rad:
+    dtype: np.ndarray
+  leader_left_state:actual_velocity_radps:
+    dtype: np.ndarray
+  leader_left_state:actual_torque_nm:
+    dtype: np.ndarray
+  
+  leader_right_state:timestamp:
+    dtype: np.ndarray
+  leader_right_state:actual_angle_rad:
+    dtype: np.ndarray
+  leader_right_state:actual_velocity_radps:
+    dtype: np.ndarray
+  leader_right_state:actual_torque_nm:
+    dtype: np.ndarray

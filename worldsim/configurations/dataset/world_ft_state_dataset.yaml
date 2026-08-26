@@ -1,0 +1,10 @@
+# Factored stage-2 dataset: right-arm q_des action + realized state / command
+# streams (qpos_right, joint_vel, dq_des, tau_ff) + joint-torque target.
+# Requires data converted by scripts/data_collection/convert_world_ft_state.py.
+defaults:
+  - world_ft_dyn_dataset
+
+dataset_dir: data/world_ft_v4
+# 10 diffusion frames + 1 extra frame for the robot branch's last transition
+horizon: 11
+val_horizon: 200
