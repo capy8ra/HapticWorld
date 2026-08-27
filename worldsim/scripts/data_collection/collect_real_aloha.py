@@ -15,6 +15,8 @@ Press "Q" to exit program.
 Press "Backspace" to delete the previously recorded episode.
 """
 
+import os
+import sys
 import time
 from multiprocessing.managers import SharedMemoryManager
 from pathlib import Path
@@ -25,6 +27,7 @@ import cv2
 import numpy as np
 from yixuan_utilities.kinematics_helper import KinHelper
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")))  # sys.path bootstrap: worldsim root
 from interactive_world_sim.real_world.aloha_bimanual_master import AlohaBimanualMaster
 from interactive_world_sim.real_world.real_aloha_env import RealAlohaEnv
 from interactive_world_sim.utils.action_utils import joint_pos_to_action_primitive

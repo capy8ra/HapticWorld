@@ -5,11 +5,14 @@ so moving the leader moves the follower -- exactly like nova/robot/openarm1/tele
 but for the right arm only (the sim rig has no left arm). Run it alongside the leader controller +
 the real right-follower controller (see teleop_wm_leader_follower.yaml).
 """
+import os
+import sys
 import time
 
 import numpy as np
 import typer
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))  # robot/ (nova package root)
 from nova.redis_client import RedisClient
 from nova.tools.precise_sleep import FrequencyRegulator
 from nova.robot.openarm1.solver import OpenArm1Solver

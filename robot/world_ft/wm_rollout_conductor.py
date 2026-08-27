@@ -14,10 +14,13 @@ while wipe_solver keeps its exact collection behavior via collect_data:command.
 Never run together with collect_data.py (both would publish collect_data:command).
 h / ENTER are handled by wipe_solver directly, unchanged.
 """
+import os
+import sys
 import time
 
 import typer
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))  # robot/ (nova package root)
 from nova.redis_client import RedisClient
 from nova.tools.keycounter import KeystrokeCounter, KeyCode
 

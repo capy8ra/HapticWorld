@@ -45,6 +45,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, _LEARNING)
 sys.path.insert(0, ROBOT)
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")))  # sys.path bootstrap: worldsim root
 from interactive_world_sim.algorithms.common.diffusion_helper import render_img_cm  # noqa: E402
 from wm_follower_worker import load_model as load_wm, seed_from_episode  # noqa: E402
 from wm_follower_worker_state import (  # noqa: E402
@@ -259,7 +260,8 @@ def main():
     else:
         wm, cfg = load_wm(args.ckpt, device, stage3_ckpt=args.stage3_ckpt)
     wm.dec_infer_steps = args.dec_infer_steps
-    res = (int(cfg.dataset.res_h), int(cfg.dataset.res_w))
+    res = ((int(cfg.dataset.res_h), int(cfg.dataset.res_w)) if "res_h" in cfg.dataset
+           else (int(cfg.dataset.resolution),) * 2)  # square-era ckpts (box-flip)
     n_ctx = int(getattr(wm, "n_tokens", 10))
     sim_cls = WMSimState if args.wm == "state" else WMSim
     sim = sim_cls(wm, n_ctx, res, device, amp_dtype, amp_on)

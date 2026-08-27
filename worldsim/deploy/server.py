@@ -1,4 +1,6 @@
 # deploy/server.py
+import os
+import sys
 import asyncio
 import re
 import struct
@@ -19,6 +21,7 @@ from yixuan_utilities.draw_utils import center_crop
 from yixuan_utilities.hdf5_utils import load_dict_from_hdf5
 from yixuan_utilities.kinematics_helper import KinHelper
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")))  # sys.path bootstrap: worldsim root
 from interactive_world_sim.algorithms.common.diffusion_helper import render_img_cm
 from interactive_world_sim.algorithms.latent_dynamics.latent_world_model import (
     LatentWorldModel,

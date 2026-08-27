@@ -24,7 +24,7 @@ import numpy as np
 # make imports work regardless of launch dir: script dir (for dataset/model) + repo root (for nova)
 _HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, _HERE)
-sys.path.insert(0, os.path.abspath(os.path.join(_HERE, "..", "..", "..")))
+sys.path.insert(0, os.path.abspath(os.path.join(_HERE, "..", "..")))  # robot/ (the nova package root)
 from dataset import center_crop_resize
 from ckpt_select import resolve_ckpt, is_spec
 from nova.redis_client import RedisClient

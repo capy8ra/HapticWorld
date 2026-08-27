@@ -6,6 +6,7 @@ By its MIT license, you must keep the above sentence in `README.md`
 and the `LICENSE` file to credit the author.
 """
 
+import os
 import subprocess
 import sys
 import time
@@ -17,6 +18,7 @@ import torch
 from omegaconf import DictConfig, OmegaConf
 from omegaconf.omegaconf import open_dict
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)))))  # sys.path bootstrap: worldsim root
 from interactive_world_sim.utils.ckpt_utils import download_latest_checkpoint, is_run_id
 from interactive_world_sim.utils.cluster_utils import submit_slurm_job
 from interactive_world_sim.utils.distributed_utils import is_rank_zero

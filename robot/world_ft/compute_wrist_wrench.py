@@ -29,6 +29,7 @@ Remaining caveats:
 Nothing outside world_ft is modified; nova / pinocchio are only imported.
 """
 
+import sys
 import os
 
 import numpy as np
@@ -36,6 +37,7 @@ import pinocchio as pin
 import typer
 from scipy.signal import butter, filtfilt
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))  # robot/ (nova package root)
 from nova.robot.openarm1.models import OPENARM_MODEL_PATH
 
 # qpos layout built by the teleop solvers: [L_arm(7), L_gripper(2), R_arm(7), R_gripper(2)]

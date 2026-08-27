@@ -23,7 +23,7 @@ import numpy as np
 import yaml
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-_REPO_ROOT = os.path.abspath(os.path.join(_HERE, "..", "..", ".."))
+_REPO_ROOT = os.path.abspath(os.path.join(_HERE, "..", ".."))  # robot/ (the nova package root)
 sys.path.insert(0, _HERE)
 sys.path.insert(0, _REPO_ROOT)
 from dataset import OpenArmDataset

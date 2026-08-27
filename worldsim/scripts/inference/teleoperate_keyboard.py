@@ -1,3 +1,5 @@
+import os
+import sys
 import math
 import time
 from pathlib import Path
@@ -16,6 +18,7 @@ from yixuan_utilities.joystick_utils import Joystick
 from yixuan_utilities.keyboard_utils import KeyReader
 from yixuan_utilities.kinematics_helper import KinHelper
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")))  # sys.path bootstrap: worldsim root
 from interactive_world_sim.algorithms.common.diffusion_helper import render_img_cm
 from interactive_world_sim.algorithms.latent_dynamics.latent_world_model import (
     LatentWorldModel,

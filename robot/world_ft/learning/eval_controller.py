@@ -18,6 +18,7 @@ train/eval-consistent.
 SAFETY: this drives real motors and has NOT been validated on hardware here. Verify the start pose
 and gravity comp in idle/`h` before pressing ENTER. Keep a hand on the e-stop.
 """
+import sys
 import os
 import time
 from typing import Optional
@@ -27,6 +28,7 @@ import pinocchio as pin
 import typer
 import yaml
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))  # robot/ (nova package root)
 from nova.redis_client import RedisClient
 from nova.tools.precise_sleep import FrequencyRegulator
 from nova.robot.openarm1.solver import OpenArm1Solver

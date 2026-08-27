@@ -22,6 +22,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from eval_controller import offset_ee_xyz  # noqa: E402  (same DLS IK as --random-home)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))  # robot/ (nova package root)
 from nova.robot.openarm1.solver import OpenArm1Solver  # noqa: E402
 
 

@@ -31,6 +31,11 @@ dependencies:
       - redis
       - typer
       - python-can          # robot only (CAN motor bus)
+      - pynput              # robot only (keyboard hotkeys)
       - pyrealsense2        # robot only (head camera)
+      - rotary-embedding-torch
+      - transforms3d
+      - zarr
+      - ipython             # imported by the vendored ACT/DETR code
       - huggingface_hub
       - git+https://github.com/WangYixuan12/yixuan_utilities.git

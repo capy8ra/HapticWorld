@@ -40,6 +40,7 @@ from omegaconf import OmegaConf
 from torch.nn.attention import SDPBackend
 from yixuan_utilities.draw_utils import center_crop
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")))  # sys.path bootstrap: worldsim root
 from interactive_world_sim.algorithms.common.diffusion_helper import render_img_cm
 
 # The diffusion decoder is NOT thread-safe: concurrent render_img_cm calls (display decoder +

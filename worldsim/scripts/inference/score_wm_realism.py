@@ -14,6 +14,7 @@ Env: hapticworld, from HapticWorld/worldsim:
     python scripts/inference/score_wm_realism.py \
         --videos 'wm_policy_rollouts/*/rollout_*.mp4' --out realism_scores.csv
 """
+import os
 import argparse
 import csv
 import glob
@@ -27,6 +28,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "robot"))  # nova.redis_client
 from wm_follower_worker import load_model as load_wm  # noqa: E402
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")))  # sys.path bootstrap: worldsim root
 from interactive_world_sim.algorithms.common.diffusion_helper import render_img_cm  # noqa: E402
 
 
@@ -82,7 +84,8 @@ def main():
     amp_dtype = {"float32": torch.float32, "bfloat16": torch.bfloat16, "float16": torch.float16}[args.dtype]
     amp_on = args.dtype != "float32" and device.startswith("cuda")
     model, cfg = load_wm(args.ckpt, device, stage3_ckpt=args.stage3_ckpt)
-    res = (int(cfg.dataset.res_h), int(cfg.dataset.res_w))
+    res = ((int(cfg.dataset.res_h), int(cfg.dataset.res_w)) if "res_h" in cfg.dataset
+           else (int(cfg.dataset.resolution),) * 2)  # square-era ckpts (box-flip)
     obs_key = model.obs_keys[0]
 
     videos = sorted(glob.glob(args.videos))

@@ -17,6 +17,7 @@ The system uses a scripted policy that generates 4 types of motions:
 """
 
 # %%
+import sys
 import os
 import subprocess
 import time
@@ -63,6 +64,7 @@ from yixuan_utilities.hdf5_utils import save_dict_to_hdf5
 from yixuan_utilities.kinematics_helper import KinHelper
 from yixuan_utilities.draw_utils import center_crop
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")))  # sys.path bootstrap: worldsim root
 from interactive_world_sim.utils.draw_utils import concat_img_h, concat_img_v, plot_single_3d_pos_traj
 from interactive_world_sim.utils.pose_utils import PoseType, pose_convert
 from interactive_world_sim.utils.motion_planner import (

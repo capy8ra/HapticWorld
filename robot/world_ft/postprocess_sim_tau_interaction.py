@@ -22,11 +22,13 @@ Notes:
   * env: hapticworld (needs the MJCF pinocchio OpenArm1Solver), from the repo root:
         python world_ft/postprocess_sim_tau_interaction.py
 """
+import sys
 import os
 
 import numpy as np
 import typer
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))  # robot/ (nova package root)
 from nova.robot.openarm1.solver import OpenArm1Solver
 
 

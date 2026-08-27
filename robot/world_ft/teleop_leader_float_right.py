@@ -5,11 +5,14 @@ of capture_wm_seeds.yaml so posing the follower (which mirrors the leader) needs
 terminal; the same job collect_data.yaml's leader_solver does, minus the bimanual streams
 and force feedback (right arm only, nothing to reflect during seed capture).
 """
+import os
+import sys
 import time
 
 import numpy as np
 import typer
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))  # robot/ (nova package root)
 from nova.redis_client import RedisClient
 from nova.tools.precise_sleep import FrequencyRegulator
 from nova.robot.openarm1.solver import OpenArm1Solver

@@ -21,6 +21,7 @@ Then roll out with (from HapticWorld/worldsim):
     python scripts/inference/rollout_policy_in_wm.py        # default seed glob = these
 Keys (preview window focused): ENTER = capture | q = quit early
 """
+import sys
 import os
 
 import cv2
@@ -29,6 +30,7 @@ import numpy as np
 import typer
 from redis.exceptions import ConnectionError as RedisConnectionError
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))  # robot/ (nova package root)
 from nova.redis_client import RedisClient
 
 OBS_KEY = "camera_1_color"  # the WM's obs_keys[0] (stage2 .hydra config)

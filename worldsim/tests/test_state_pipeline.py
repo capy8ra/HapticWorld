@@ -29,6 +29,7 @@ if not torch.cuda.is_available():
 
     torch.cuda.get_device_properties = lambda dev: _FakeProps()
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")))  # sys.path bootstrap: worldsim root
 from interactive_world_sim.algorithms.latent_dynamics.models.state_branch import (  # noqa: E402
     StateBranch,
 )

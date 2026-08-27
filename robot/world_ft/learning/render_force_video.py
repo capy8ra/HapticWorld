@@ -22,6 +22,7 @@ import pinocchio as pin
 
 _HW = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 sys.path.insert(0, os.path.join(_HW, "robot"))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))  # robot/ (nova package root)
 from nova.robot.openarm1.solver import OpenArm1Solver
 
 ROOT = os.path.join(_HW, "data", "real_training")

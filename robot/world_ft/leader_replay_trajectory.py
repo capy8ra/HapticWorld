@@ -21,6 +21,8 @@ controller up on can1 -- start them with:
     process-compose -f world_ft/teleop_wm_leader_only.yaml
 Use the SAME episode here and as the worker's --seed-episode.
 """
+import os
+import sys
 import time
 
 import numpy as np
@@ -36,6 +38,7 @@ from leader_home_and_float import (
     _read_leader,
     _smoothstep,
 )
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))  # robot/ (nova package root)
 from nova.redis_client import RedisClient
 from nova.robot.openarm1.solver import OpenArm1Solver
 from nova.tools.precise_sleep import FrequencyRegulator

@@ -20,6 +20,8 @@ Runs in the hapticworld env (needs nova + pinocchio + CAN). Talks to the same re
 (world_ft/scripts/inference/wm_follower_worker.py) must be seeded from the SAME
 episode so the sim scene and the leader pose start consistent.
 """
+import os
+import sys
 import time
 
 import numpy as np
@@ -30,6 +32,7 @@ try:
 except ImportError:  # pragma: no cover
     h5py = None
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))  # robot/ (nova package root)
 from nova.redis_client import RedisClient
 from nova.robot.openarm1.solver import OpenArm1Solver
 from nova.tools.precise_sleep import FrequencyRegulator
