@@ -22,7 +22,7 @@ Writes `<rollout>_tau.npz` next to each input npz:
 Run (hapticworld env, from HapticWorld/worldsim):
     python scripts/inference/replay_wm_rollout_torque.py   # from HapticWorld/worldsim \
         --rollouts 'wm_policy_rollouts_microwave/<policy dir>/rollout_{15,5,18,2}.npz' \
-        --ckpt world_ft_ckpts/.../stage2_trunk/checkpoints/last.ckpt \
+        --ckpt <...>/checkpoints/wm/boxflip/stage2/checkpoints/last.ckpt \
         --stage3-ckpt world_ft_ckpts/.../stage3/checkpoints/last.ckpt
 """
 import argparse
@@ -77,7 +77,7 @@ def main():
     import h5py
 
     def get_seed(path):
-        """Same as rollout_policy_in_wm.main()'s nested get_seed (trunk WM path)."""
+        """Same as rollout_policy_in_wm.main()'s nested get_seed (default WM path)."""
         with h5py.File(path, "r") as f:
             action0 = f["action"][0].astype(np.float64)      # (8,) raw
         z0, a0, grip = R.seed_from_episode(wm, path, res, device, amp_dtype, amp_on)

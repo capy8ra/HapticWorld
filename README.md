@@ -52,7 +52,7 @@ finetune), from `worldsim/`:
 
 ```bash
 bash scripts/train/run_stage1.sh
-bash scripts/train/run_stage2.sh     # HEAD=trunk_midblock for the trunk torque head
+bash scripts/train/run_stage2.sh
 bash scripts/train/run_stage3.sh
 ```
 

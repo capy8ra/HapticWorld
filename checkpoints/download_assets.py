@@ -15,7 +15,7 @@ from huggingface_hub import hf_hub_download
 REPO = "ShaotingPeng/HapticWorld"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-WM_FILES = [f"wm/boxflip/{s}/{f}" for s in ("stage1", "stage2_trunk", "stage3")
+WM_FILES = [f"wm/boxflip/{s}/{f}" for s in ("stage1", "stage2", "stage3")
             for f in ("checkpoints/last.ckpt", ".hydra/config.yaml")]
 POLICY_ZIPS = [
     "policies/boxflip/image_only_sim_2026_07_22_11_14_57_PDT.zip",
@@ -53,7 +53,7 @@ def main():
     print("== world model ==")
     for f in WM_FILES:
         if a.demo and "stage1" in f:
-            continue  # the demo only needs stage2_trunk (dynamics+torque) and stage3 (decoder)
+            continue  # the demo only needs stage2 (dynamics+torque) and stage3 (decoder)
         fetch(f, os.path.join(ROOT, "checkpoints", "wm", "boxflip",
                               f.split("wm/boxflip/")[1]))
 

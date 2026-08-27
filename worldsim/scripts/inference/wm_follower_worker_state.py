@@ -12,7 +12,7 @@ model ``LatentWorldModelState`` (ModelScope ``stage2_state``):
     ``coupled_rollout`` deployment path (state branch and diffusion feed each other),
     reproduced here one frame at a time as live leader angles arrive.
 
-Differences vs the trunk worker (``wm_follower_worker.py``):
+Differences vs the standard worker (``wm_follower_worker.py``):
   * loads ``LatentWorldModelState`` and steps the coupled (scene+state) rollout;
   * the leader command is normalized with the model's dedicated ``qpos`` normalizer
     (``model._norm_q``), matching training — NOT the ``action`` normalizer;
@@ -50,7 +50,7 @@ from interactive_world_sim.algorithms.latent_dynamics.latent_world_model_state i
     LatentWorldModelState,
 )
 
-# Reuse the async decoder + session recorder from the trunk worker (identical display
+# Reuse the async decoder + session recorder from the standard worker (identical display
 # path). Importing it also enforces the nova.redis_client requirement below.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from wm_follower_worker import (  # noqa: E402

@@ -6,7 +6,7 @@ Fetched from HuggingFace (`ShaotingPeng/HapticWorld`) by:
 
 Layout after download:
 
-    checkpoints/wm/boxflip/{stage1,stage2_trunk,stage3}/checkpoints/last.ckpt   world model (3 stages)
+    checkpoints/wm/boxflip/{stage1,stage2,stage3}/checkpoints/last.ckpt   world model (3 stages)
     checkpoints/policies/<run>/                                                 ACT policies:
         image_only_sim_*    no-torque policy (i_sim)
         image_torque_sim_*  torque policy (it_sim)

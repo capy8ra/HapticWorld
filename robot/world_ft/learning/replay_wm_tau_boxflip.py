@@ -2,7 +2,7 @@
 tau_interaction (WM torque_pred - gravity(commanded q)) for the force visualization.
 
 Box-flip twin of the wipe task's replay_wm_tau.py: same mechanics, but the TRUNK world
-model (stage2_trunk + stage3, stage-1 lineage 2026-07-15_02-35-54) and the four box-flip
+model (stage2 + stage3, stage-1 lineage 2026-07-15_02-35-54) and the four box-flip
 policies in worldsim/wm_policy_rollouts/.
 
 Why a replay is needed: the rollout npz stores actions at every step but tau only at
@@ -50,7 +50,7 @@ POLICIES = tuple(SELECTION)
 os.makedirs(OUTD, exist_ok=True)
 device = "cuda:0"
 amp_dtype = torch.bfloat16
-wm, cfg = R.load_wm("world_ft_ckpts/stage2_trunk/checkpoints/last.ckpt", device,
+wm, cfg = R.load_wm(os.path.join(_HW, "checkpoints/wm/boxflip/stage2/checkpoints/last.ckpt"), device,
                     stage3_ckpt="world_ft_ckpts/stage3/checkpoints/last.ckpt")
 wm.dec_infer_steps = 3
 res = int(cfg.dataset.resolution)

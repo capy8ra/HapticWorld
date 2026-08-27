@@ -122,38 +122,20 @@ joint torque (raw N·m) from image history + `q_des`. Recipe: `horizon=10`,
 `val_horizon=200`, `terminal_only` sampling, `uniform` noise loss weighting,
 `16-mixed` precision (A100 flash-only SDPA has no fp32 kernel).
 
-Two interchangeable torque heads, selected by `algorithm.torque_head_source`:
-- `separate` (default) — standalone CNN+GRU re-encoder on latents.
-- `trunk_midblock` — MLP branching off the dynamics U-Net mid-block features.
+The torque head is an MLP branching off the dynamics U-Net mid-block features
+(`algorithm.torque_head_source=trunk_midblock`, baked into the launcher — see
+`docs/MODEL_ARCHITECTURE.md` §5 for the design space that led here).
 
-### Separate head
-
-`scripts/train/train_world_ft_stage2.sh` hardcodes `data/world_ft_v2` and does
-**not** forward extra overrides. Edit its dataset line to:
+`run_stage2.sh` forwards extra Hydra overrides (`"$@"`), so no edit is needed:
 
 ```bash
-dataset.dataset_dir=data/world_ft_v3 \
-```
-
-then:
-
-```bash
-bash scripts/train/train_world_ft_stage2.sh
-```
-
-### Trunk head
-
-`train_world_ft_stage2_trunk.sh` already forwards extra Hydra overrides (`"$@"`),
-so no edit is needed:
-
-```bash
-bash scripts/train/train_world_ft_stage2_trunk.sh dataset.dataset_dir=data/world_ft_v3
+bash scripts/train/run_stage2.sh dataset.dataset_dir=data/world_ft_v3
 # tune the torque term, e.g.:
-bash scripts/train/train_world_ft_stage2_trunk.sh \
+bash scripts/train/run_stage2.sh \
   dataset.dataset_dir=data/world_ft_v3 algorithm.torque_loss_weight=0.1
 ```
 
-### Explicit command (separate head)
+### Explicit command (what the launcher runs)
 
 ```bash
 STAGE1_CKPT="$(ls -t outputs/world_ft_stage_1/*/checkpoints/last.ckpt 2>/dev/null | head -n1)"
@@ -185,15 +167,13 @@ python main.py +name=world_ft_stage_2 \
   "algorithm.load_ae=${STAGE1_CKPT}" \
   algorithm.latent_dim=512 algorithm.action_dim=8 algorithm.torque_dim=8 \
   algorithm.sampling_strategy=terminal_only \
-  algorithm.noise_scheduler.loss_weighting=uniform
+  algorithm.noise_scheduler.loss_weighting=uniform \
+  algorithm.torque_head_source=trunk_midblock
 ```
 
-For the **trunk** head add: `algorithm.torque_head_source=trunk_midblock` (and
-optionally `algorithm.torque_noise_cond=true`).
+(Optionally add `algorithm.torque_noise_cond=true`.)
 
-Outputs:
-- separate → `outputs/world_ft_stage_2/<timestamp>/checkpoints/last.ckpt`
-- trunk    → `outputs/world_ft_stage_2_trunk/<timestamp>/checkpoints/last.ckpt`
+Output: `outputs/world_ft_stage_2/<timestamp>/checkpoints/last.ckpt`
 
 Logged metrics: `training/{loss,dyn_loss,torque_mse,torque_rmse_nm}` and
 `validation/{dyn_loss,torque_mse,torque_rmse_nm}`. Torque is in raw N·m, so

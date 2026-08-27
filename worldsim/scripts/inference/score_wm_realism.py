@@ -70,7 +70,7 @@ def main():
     ap.add_argument("--baseline", default=(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "robot", "world_ft") + "/"
                                            "data/sim_training/*/camera_head.mp4"))
     ap.add_argument("--n-baseline", type=int, default=5)
-    ap.add_argument("--ckpt", default="world_ft_ckpts/stage2_trunk/checkpoints/last.ckpt")
+    ap.add_argument("--ckpt", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "checkpoints/wm/boxflip/stage2/checkpoints/last.ckpt"))
     ap.add_argument("--stage3-ckpt", default="world_ft_ckpts/stage3/checkpoints/last.ckpt")
     ap.add_argument("--stride", type=int, default=2, help="score every Nth frame")
     ap.add_argument("--text-rows", type=int, default=12,

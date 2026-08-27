@@ -50,7 +50,7 @@ For **visual-only** (Milestone 1), drop the torque path: the worker runs without
 ## 2. Prerequisites (once)
 
 - **Checkpoints** (retrained, under `worldsim/world_ft_ckpts/`):
-  - `stage2_trunk/checkpoints/last.ckpt` — dynamics + torque head + encoder.
+  - `stage2/checkpoints/last.ckpt` — dynamics + torque head + encoder.
   - `stage3/checkpoints/last.ckpt` — fine-tuned **decoder** (robust to latent drift).
   - Stage 1 is **not** needed at inference (its frozen encoder is inside stage 2, and stage 3
     is the fine-tuned stage-1 decoder). Each ckpt needs its sibling `.hydra/config.yaml`.
@@ -89,8 +89,8 @@ Rolls the *recorded* actions of converted episodes through the model and writes
 conda activate hapticworld
 cd HapticWorld/worldsim
 python scripts/inference/rollout_world_ft.py \
-  --ckpt world_ft_ckpts/stage2_trunk/checkpoints/last.ckpt \
-  --stage3-ckpt world_ft_ckpts/stage3/checkpoints/last.ckpt \
+  --ckpt checkpoints/wm/boxflip/stage2/checkpoints/last.ckpt \
+  --stage3-ckpt checkpoints/wm/boxflip/stage3/checkpoints/last.ckpt \
   --data_dir data/world_ft_eval_0713_rollout --split val \
   --out wm_rollout_0713
 ```
@@ -108,7 +108,7 @@ Wait for `leader float ready`.
 ```bash
 conda activate hapticworld
 cd HapticWorld/worldsim
-PYTHONPATH=HapticWorld/robot python scripts/inference/wm_follower_worker.py --ckpt world_ft_ckpts/stage2_trunk/checkpoints/last.ckpt --stage3-ckpt world_ft_ckpts/stage3/checkpoints/last.ckpt --seed-episode data/world_ft_seed_0713/val/episode_0.hdf5 --dtype bfloat16
+PYTHONPATH=HapticWorld/robot python scripts/inference/wm_follower_worker.py --ckpt checkpoints/wm/boxflip/stage2/checkpoints/last.ckpt --stage3-ckpt checkpoints/wm/boxflip/stage3/checkpoints/last.ckpt --seed-episode data/world_ft_seed_0713/val/episode_0.hdf5 --dtype bfloat16
 ```
 Order: **Term 1 (wait "leader float ready") → Term 2.** Move the leader → the sim follows.
 Press `q` (or Ctrl-C) to quit.
@@ -130,7 +130,7 @@ python world_ft/leader_wm_force_feedback.py --seed-episode HapticWorld/worldsim/
 ```bash
 conda activate hapticworld
 cd HapticWorld/worldsim
-PYTHONPATH=HapticWorld/robot python scripts/inference/wm_follower_worker.py --ckpt world_ft_ckpts/stage2_trunk/checkpoints/last.ckpt --stage3-ckpt world_ft_ckpts/stage3/checkpoints/last.ckpt --seed-episode data/world_ft_seed_0713/val/episode_0.hdf5 --publish-torque --dtype bfloat16
+PYTHONPATH=HapticWorld/robot python scripts/inference/wm_follower_worker.py --ckpt checkpoints/wm/boxflip/stage2/checkpoints/last.ckpt --stage3-ckpt checkpoints/wm/boxflip/stage3/checkpoints/last.ckpt --seed-episode data/world_ft_seed_0713/val/episode_0.hdf5 --publish-torque --dtype bfloat16
 ```
 Order: **Term 1 → Term 2 (homes + holds at the seed pose) → Term 3.** When the worker starts
 publishing, Term 2 auto-prints `worker detected … switching to float + reflect` and the arm
@@ -152,7 +152,7 @@ must be running (start one: `redis-server --port 6379 --save "" --appendonly no`
 ```bash
 # worker
 conda activate hapticworld && cd HapticWorld/worldsim
-PYTHONPATH=HapticWorld/robot python scripts/inference/wm_follower_worker.py --ckpt world_ft_ckpts/stage2_trunk/checkpoints/last.ckpt --stage3-ckpt world_ft_ckpts/stage3/checkpoints/last.ckpt --seed-episode data/world_ft_eval_0713_rollout/val/episode_0.hdf5 --dtype bfloat16
+PYTHONPATH=HapticWorld/robot python scripts/inference/wm_follower_worker.py --ckpt checkpoints/wm/boxflip/stage2/checkpoints/last.ckpt --stage3-ckpt checkpoints/wm/boxflip/stage3/checkpoints/last.ckpt --seed-episode data/world_ft_eval_0713_rollout/val/episode_0.hdf5 --dtype bfloat16
 
 # replay (nova env)
 cd HapticWorld/robot

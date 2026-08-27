@@ -213,11 +213,11 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--policies", default="i_sim,it_sim,i_real,it_real",
                     help="comma list of ckpt selectors (ckpt_select specs) or model.pth paths")
-    ap.add_argument("--wm", choices=["trunk", "state"], default="trunk",
-                    help="world model variant: trunk (stage2_trunk+stage3) or state "
+    ap.add_argument("--wm", choices=["default", "state"], default="default",
+                    help="world model variant: default (stage2+stage3) or state "
                          "(stage2_state+stage3_state, coupled q-measured rollout; the ckpt "
                          "defaults switch automatically)")
-    ap.add_argument("--ckpt", default=os.path.join(_REPO, "checkpoints/wm/boxflip/stage2_trunk/checkpoints/last.ckpt"))
+    ap.add_argument("--ckpt", default=os.path.join(_REPO, "checkpoints/wm/boxflip/stage2/checkpoints/last.ckpt"))
     ap.add_argument("--stage3-ckpt", default=os.path.join(_REPO, "checkpoints/wm/boxflip/stage3/checkpoints/last.ckpt"))
     ap.add_argument("--seed-episodes", default=os.path.join(_REPO, "data/wm_seed_live/episode_*.hdf5"),
                     help="glob of seed hdf5s; ONE is sampled per rollout (capture them with "

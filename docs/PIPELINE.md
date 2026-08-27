@@ -109,8 +109,8 @@ and predicts its torque, and that (image + leader action + predicted torque) is 
 - **Term 3** (run from `worldsim/`) — the world model:
   ```bash
   PYTHONPATH=HapticWorld/robot python scripts/inference/wm_follower_worker.py \
-      --ckpt world_ft_ckpts/stage2_trunk/checkpoints/last.ckpt \
-      --stage3-ckpt world_ft_ckpts/stage3/checkpoints/last.ckpt \
+      --ckpt checkpoints/wm/boxflip/stage2/checkpoints/last.ckpt \
+      --stage3-ckpt checkpoints/wm/boxflip/stage3/checkpoints/last.ckpt \
       --seed-episode data/world_ft_seed_0713/val/episode_0.hdf5 --publish-torque --dtype bfloat16
   ```
   It reads the leader joint angles as the "action", rolls a latent dynamics model, decodes the
@@ -158,7 +158,7 @@ interaction definition. Training auto-selects it; a half-processed folder fails 
 frozen encoder), stage2 (`--ckpt`, dynamics + torque head), stage3 (`--stage3-ckpt`, decoder-only
 fine-tune for sharper decode of drifted latents). **stage2 and stage3 must share the same stage1**
 (check `.hydra/config.yaml` `load_ae`). Two families exist (all on ModelScope `ShaotingPeng/world_ft_ckpts`):
-- **trunk**: `stage2_trunk` + `stage3` share stage1 `2026-07-15_02-35-54`.
+- `stage2` + `stage3` share stage1 `2026-07-15_02-35-54`.
 - **state** (dynamics conditioned on `[q_des(8), q_measured(8)]`, `LatentWorldModelState`,
   autoregressive GRU state branch): `stage2_state` (run `2026-07-17_15-47-53`) + `stage3_state`
   (run `2026-07-21_22-54-36`, downloaded 2026-07-22) share stage1 `2026-07-16_14-12-06`.

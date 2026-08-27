@@ -52,7 +52,7 @@ Three stages via `main.py` + Hydra; launchers in `scripts/train/` (`run_stage{1,
 - **Stage 3** — decoder-only finetune on noised latents (sharper decode of drifted rollout
   latents). **Compatibility rule:** stage 2 and stage 3 must share the same stage-1 run
   (check `.hydra/config.yaml: load_ae`).
-Production checkpoints: `worldsim/world_ft_ckpts/{stage1, stage2_trunk, stage3}` (stage-1
+Production checkpoints: `checkpoints/wm/boxflip/{stage1, stage2, stage3}` (stage-1
 lineage `2026-07-15_02-35-54`). A state-conditioned variant (`stage2_state`+`stage3_state`)
 was built and abandoned — it underperformed the plain trunk+torque-head (WM_EVAL §3c; keep as
 the justified-simplicity ablation, don't build on it).
@@ -77,7 +77,7 @@ right leader and *feels* the WM's predicted torque:
    `_leader_follower` variant also mirrors the real follower).
 2. `python world_ft/leader_wm_force_feedback.py --seed-episode <hdf5>` (homes leader,
    floats, reflects `torque_pred − gravity(leader q)` with LPF/clamp/watchdog).
-3. `python scripts/inference/wm_follower_worker.py --ckpt <stage2_trunk>
+3. `python scripts/inference/wm_follower_worker.py --ckpt <stage2 last.ckpt>
    --stage3-ckpt <stage3> --seed-episode <same hdf5> --publish-torque --dtype bfloat16`
    — **multi-episode flow**: ENTER = record · `s` = background save + reset + 3 s hold →
    live → ENTER again · `q` = quit (drains saves). REC/IDLE HUD; ~20-25 s/episode sustained

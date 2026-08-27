@@ -16,7 +16,7 @@ you launch first.
 Run (needs redis on 6379):
   # step 2 (unchanged): the worker
   python scripts/inference/wm_follower_worker.py \
-    --ckpt outputs/world_ft_stage_2_trunk/checkpoints/last.ckpt \
+    --ckpt outputs/world_ft_stage_2/<ts>/checkpoints/last.ckpt \
     --seed-episode data/world_ft_eval_0702b/val/episode_0.hdf5
   # step 1 (this): the recorded "leader"
   python scripts/inference/replay_leader_to_redis.py \

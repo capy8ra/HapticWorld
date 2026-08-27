@@ -9,7 +9,7 @@ paper. Two model families are covered:
    Code: `world_ft/learning/` in this repo.
 
 All hyperparameters below are the **production values** (from
-`worldsim/world_ft_ckpts/stage2_trunk/.hydra/config.yaml` and `learning/train_core.py`), not
+`checkpoints/wm/boxflip/stage2/.hydra/config.yaml` and `learning/train_core.py`), not
 defaults. Measured evaluation numbers live in [WM_EVAL.md](WM_EVAL.md); operational commands in
 [PIPELINE.md](PIPELINE.md); project map in [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md).
 

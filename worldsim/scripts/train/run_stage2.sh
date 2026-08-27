@@ -11,17 +11,15 @@ export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-$(seq -s, 0 $((NGPU-1)))}"
 NGPU=$(awk -F, '{print NF}' <<<"$CUDA_VISIBLE_DEVICES")
 BATCH="${BATCH:-16}"
 METRICS="${METRICS:-[fvd]}"
-HEAD="${HEAD:-separate}"          # separate | trunk_midblock
-TAG=""; if [ "$HEAD" = trunk_midblock ]; then TAG="_trunk"; fi
 
 STAGE1_CKPT="$(ls -t outputs/world_ft_stage_1/*/checkpoints/last.ckpt 2>/dev/null | head -n1 || true)"
 [[ -n "$STAGE1_CKPT" ]] || { echo "[stage2] 没找到 Stage-1 ckpt，先训 stage1"; exit 1; }
-RESUME="$(ls -t outputs/world_ft_stage_2${TAG}/*/checkpoints/last.ckpt 2>/dev/null | head -n1 || true)"
-echo "[stage2] GPUs=$CUDA_VISIBLE_DEVICES NGPU=$NGPU batch/gpu=$BATCH head=$HEAD metrics=$METRICS"
+RESUME="$(ls -t outputs/world_ft_stage_2/*/checkpoints/last.ckpt 2>/dev/null | head -n1 || true)"
+echo "[stage2] GPUs=$CUDA_VISIBLE_DEVICES NGPU=$NGPU batch/gpu=$BATCH metrics=$METRICS"
 echo "[stage2] load_ae <- $STAGE1_CKPT"
 
 python main.py +name=world_ft_stage_2 \
-  "hydra.run.dir=outputs/world_ft_stage_2${TAG}/\${now:%Y-%m-%d}_\${now:%H-%M-%S}" \
+  "hydra.run.dir=outputs/world_ft_stage_2/\${now:%Y-%m-%d}_\${now:%H-%M-%S}" \
   ${RESUME:+load=$RESUME} \
   experiment=exp_latent_dyn_torque algorithm=latent_world_model_torque dataset=world_ft_dyn_dataset \
   dataset.dataset_dir=data/world_ft_v3 \
@@ -46,7 +44,7 @@ python main.py +name=world_ft_stage_2 \
   algorithm.latent_dim=512 algorithm.action_dim=8 algorithm.torque_dim=8 \
   algorithm.sampling_strategy=terminal_only \
   algorithm.noise_scheduler.loss_weighting=uniform \
-  algorithm.torque_head_source="$HEAD" \
+  algorithm.torque_head_source=trunk_midblock \
   experiment.num_devices="$NGPU" \
   wandb.mode=online \
   "algorithm.metrics=$METRICS" \
