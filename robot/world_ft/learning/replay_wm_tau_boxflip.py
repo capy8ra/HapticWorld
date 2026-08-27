@@ -51,9 +51,10 @@ os.makedirs(OUTD, exist_ok=True)
 device = "cuda:0"
 amp_dtype = torch.bfloat16
 wm, cfg = R.load_wm(os.path.join(_HW, "checkpoints/wm/boxflip/stage2/checkpoints/last.ckpt"), device,
-                    stage3_ckpt="world_ft_ckpts/stage3/checkpoints/last.ckpt")
+                    stage3_ckpt=os.path.join(_HW, "checkpoints/wm/boxflip/stage3/checkpoints/last.ckpt"))
 wm.dec_infer_steps = 3
-res = int(cfg.dataset.resolution)
+res = ((int(cfg.dataset.res_h), int(cfg.dataset.res_w)) if "res_h" in cfg.dataset
+       else (int(cfg.dataset.resolution),) * 2)  # square-era ckpts (box-flip)
 n_ctx = int(getattr(wm, "n_tokens", 10))
 sim = R.WMSim(wm, n_ctx, res, device, amp_dtype, True)
 grav = R.GravityIK()
