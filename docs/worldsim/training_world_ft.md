@@ -27,7 +27,7 @@ export WANDB_API_KEY=...                       # https://wandb.ai/authorize
 #   scripts/train/wandb_key.local.sh   ->   export WANDB_API_KEY=...
 ```
 
-All commands below are run from the repo root (`/home/peng33/interactive_world_sim`).
+All commands below are run from `worldsim/`.
 
 ---
 

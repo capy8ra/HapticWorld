@@ -16,7 +16,7 @@ This is the master run guide. Milestone-1 background lives in
 
 | Repo / env | Role |
 |---|---|
-| **IWS_test** (`iws` conda env) | World model + inference. `scripts/inference/wm_follower_worker.py` (the sim worker), `rollout_world_ft.py` (offline eval), `replay_leader_to_redis.py` (replay). Torch + `interactive_world_sim`. |
+| **worldsim/** | World model + inference. `scripts/inference/wm_follower_worker.py` (the sim worker), `rollout_world_ft.py` (offline eval), `replay_leader_to_redis.py` (replay). Torch + `interactive_world_sim`. |
 | **robot/** | Real robot. Damiao CAN controllers, `OpenArm1Solver` (pinocchio), and the leader-side scripts under `world_ft/`. |
 
 They never import each other's heavy code — the **only** coupling is **localhost redis
