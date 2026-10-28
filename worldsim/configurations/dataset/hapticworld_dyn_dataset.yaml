@@ -1,0 +1,14 @@
+# Stage-2 dynamics dataset: right-arm q_des action + joint-torque target.
+# Inherits play_dataset; selects the HapticWorldDynDataset class by name.
+defaults:
+  - play_dataset
+
+dataset_dir: ../data/play/boxflip
+action_mode: right_qpos
+horizon: 10
+val_horizon: 200
+
+shape_meta:
+  action:
+    shape:
+      - 8

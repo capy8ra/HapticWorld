@@ -1,0 +1,35 @@
+from typing import Optional
+
+import torch
+
+from hapticworld.algorithms.latent_dynamics import LatentWorldModel
+from hapticworld.datasets.latent_dynamics import (
+    PlayDataset,
+)
+
+from .exp_base import BaseLightningExperiment
+
+
+class LatentDynExperiment(BaseLightningExperiment):
+    """Latent dynamics experiment for interactive world simulation."""
+
+    compatible_algorithms = dict(
+        latent_world_model=LatentWorldModel,
+    )
+
+    compatible_datasets = dict(
+        play_dataset=PlayDataset,
+    )
+
+    def _build_dataset(self, split: str) -> Optional[torch.utils.data.Dataset]:
+        # build the dataset
+        if not hasattr(self, "dataset"):
+            self.dataset = self.compatible_datasets[
+                self.root_cfg.dataset._name  # noqa
+            ](self.root_cfg.dataset)
+        if split == "training":
+            return self.dataset
+        elif split == "validation":
+            return self.dataset.get_validation_dataset()
+        else:
+            raise NotImplementedError(f"split '{split}' is not implemented")

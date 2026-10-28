@@ -1,28 +1,21 @@
 #!/usr/bin/env bash
-# Stage 2（latent dynamics + torque head），自动加载最新 Stage-1 ckpt 作冻结 AE。
-set -euo pipefail
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-[[ -f "$ROOT/env.local.sh" ]] || { echo "缺 $ROOT/env.local.sh"; exit 1; }
-set +u; source "$ROOT/env.local.sh"; set -u
-cd "$ROOT"
-
-NGPU="${NGPU:-2}"
-export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-$(seq -s, 0 $((NGPU-1)))}"
-NGPU=$(awk -F, '{print NF}' <<<"$CUDA_VISIBLE_DEVICES")
-BATCH="${BATCH:-16}"
-METRICS="${METRICS:-[fvd]}"
-
-STAGE1_CKPT="$(ls -t outputs/world_ft_stage_1/*/checkpoints/last.ckpt 2>/dev/null | head -n1 || true)"
-[[ -n "$STAGE1_CKPT" ]] || { echo "[stage2] 没找到 Stage-1 ckpt，先训 stage1"; exit 1; }
-RESUME="$(ls -t outputs/world_ft_stage_2/*/checkpoints/last.ckpt 2>/dev/null | head -n1 || true)"
-echo "[stage2] GPUs=$CUDA_VISIBLE_DEVICES NGPU=$NGPU batch/gpu=$BATCH metrics=$METRICS"
-echo "[stage2] load_ae <- $STAGE1_CKPT"
-
-python main.py +name=world_ft_stage_2 \
-  "hydra.run.dir=outputs/world_ft_stage_2/\${now:%Y-%m-%d}_\${now:%H-%M-%S}" \
+# Stage 2: action-conditioned latent dynamics + the torque head, trained jointly on top of the
+# frozen stage-1 autoencoder (the HapticWorld model). See scripts/train/_common.sh for variables.
+#   TASK=wipe NGPU=4 bash scripts/train/run_stage2.sh [extra hydra overrides]
+#   AE_CKPT=<stage-1 last.ckpt>   defaults to the newest outputs/hapticworld_<task>_stage_1 run;
+#                                 use ../checkpoints/wm/<task>/stage1/checkpoints/last.ckpt to
+#                                 build on the released autoencoder instead of training stage 1.
+source "$(dirname "$0")/_common.sh"
+NAME="hapticworld_${TASK}_stage_2"
+AE_CKPT="${AE_CKPT:-$(latest_ckpt "hapticworld_${TASK}_stage_1")}"
+[[ -n "$AE_CKPT" ]] || { echo "[stage2] no stage-1 checkpoint for $TASK: run run_stage1.sh or set AE_CKPT"; exit 1; }
+RESUME=""; [[ "${FRESH:-0}" == 1 ]] || RESUME="$(latest_ckpt "$NAME")"
+echo "[stage2] task=$TASK data=$DATA GPUs=$CUDA_VISIBLE_DEVICES batch/gpu=$BATCH load_ae=$AE_CKPT ${RESUME:+resume=$RESUME}"
+python main.py +name="$NAME" \
+  "hydra.run.dir=outputs/$NAME/\${now:%Y-%m-%d}_\${now:%H-%M-%S}" \
   ${RESUME:+load=$RESUME} \
-  experiment=exp_latent_dyn_torque algorithm=latent_world_model_torque dataset=world_ft_dyn_dataset \
-  dataset.dataset_dir=data/world_ft_v3 \
+  experiment=exp_latent_dyn_torque algorithm=latent_world_model_torque dataset=hapticworld_dyn_dataset \
+  "dataset.dataset_dir=$DATA" \
   dataset.obs_keys=[camera_1_color] \
   '~dataset.shape_meta.obs.camera_0_color' \
   dataset.horizon=10 dataset.val_horizon=200 \
@@ -38,14 +31,13 @@ python main.py +name=world_ft_stage_2 \
   +experiment.training.checkpointing.save_top_k=3 \
   +experiment.training.checkpointing.save_last=true \
   experiment.validation.limit_batch=1.0 experiment.validation.batch_size=2 \
-  experiment.validation.val_every_n_step=6000 \
+  experiment.validation.val_every_n_step="$(val_every 6000)" \
   algorithm.training_stage=2 \
-  "algorithm.load_ae=$STAGE1_CKPT" \
+  "algorithm.load_ae=$AE_CKPT" \
   algorithm.latent_dim=512 algorithm.action_dim=8 algorithm.torque_dim=8 \
   algorithm.sampling_strategy=terminal_only \
   algorithm.noise_scheduler.loss_weighting=uniform \
-  algorithm.torque_head_source=trunk_midblock \
   experiment.num_devices="$NGPU" \
-  wandb.mode=online \
+  wandb.mode="$WANDB_MODE" \
   "algorithm.metrics=$METRICS" \
-  "$@"
+  "${EXTRA[@]}" "$@"

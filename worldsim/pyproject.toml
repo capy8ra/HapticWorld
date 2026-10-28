@@ -3,15 +3,15 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "interactive_world_sim"
+name = "hapticworld"
 version = "0.1.0"
-description = "Interactive World Simulator for robot manipulation"
+description = "HapticWorld: an interactive world simulator with real-time torque feedback"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["interactive_world_sim*"]
+include = ["hapticworld*"]
 
 [tool.ruff.lint]
 

@@ -19,16 +19,16 @@ from omegaconf import DictConfig, OmegaConf
 from omegaconf.omegaconf import open_dict
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)))))  # sys.path bootstrap: worldsim root
-from interactive_world_sim.utils.ckpt_utils import download_latest_checkpoint, is_run_id
-from interactive_world_sim.utils.cluster_utils import submit_slurm_job
-from interactive_world_sim.utils.distributed_utils import is_rank_zero
-from interactive_world_sim.utils.print_utils import cyan
+from hapticworld.utils.ckpt_utils import download_latest_checkpoint, is_run_id
+from hapticworld.utils.cluster_utils import submit_slurm_job
+from hapticworld.utils.distributed_utils import is_rank_zero
+from hapticworld.utils.print_utils import cyan
 
 
 def run_local(cfg: DictConfig) -> None:
     # delay some imports in case they are not needed in non-local envs for submission
-    from interactive_world_sim.experiments import build_experiment
-    from interactive_world_sim.utils.wandb_utils import (
+    from hapticworld.experiments import build_experiment
+    from hapticworld.utils.wandb_utils import (
         OfflineWandbLogger,
         SpaceEfficientWandbLogger,
     )
@@ -187,12 +187,14 @@ def run(cfg: DictConfig) -> None:
         )
 
     if not cfg.wandb.get("entity", None):
-        raise ValueError(
-            "must specify wandb entity in 'configurations/config.yaml' or with command"
-            " line argument 'wandb.entity=[entity]' \n An entity is your wandb user"
-            "name or group name. This is used for logging. If you don't have a wandb"
-            " account, please signup at https://wandb.ai/"
-        )
+        if cfg.wandb.mode == "online":
+            raise ValueError(
+                "wandb.mode=online needs a wandb entity (your user or group name): set it in"
+                " 'configurations/config.yaml' or pass wandb.entity=<name>, or run with"
+                " WANDB_MODE=offline"
+            )
+        with open_dict(cfg):
+            cfg.wandb.entity = "local"  # offline / dryrun logging needs no real entity
 
     if cfg.wandb.project is None:
         cfg.wandb.project = str(Path(__file__).parent.name)

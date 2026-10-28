@@ -1,26 +1,22 @@
 #!/usr/bin/env bash
-# Stage 1（autoencoder）。卡数用 NGPU 控制（默认 2）。
-set -euo pipefail
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-[[ -f "$ROOT/env.local.sh" ]] || { echo "缺 $ROOT/env.local.sh"; exit 1; }
-set +u; source "$ROOT/env.local.sh"; set -u
-cd "$ROOT"
-
-NGPU="${NGPU:-2}"
-export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-$(seq -s, 0 $((NGPU-1)))}"
-NGPU=$(awk -F, '{print NF}' <<<"$CUDA_VISIBLE_DEVICES")
-BATCH="${BATCH:-16}"
-METRICS="${METRICS:-[fvd]}"     # i3d_torchscript.pt 已就位用 [fvd]；关掉用 METRICS='[]'
-echo "[stage1] GPUs=$CUDA_VISIBLE_DEVICES NGPU=$NGPU batch/gpu=$BATCH metrics=$METRICS"
-
-RESUME="$(ls -t outputs/world_ft_stage_1/*/checkpoints/last.ckpt 2>/dev/null | head -n1 || true)"
-python main.py +name=world_ft_stage_1 \
-  'hydra.run.dir=outputs/world_ft_stage_1/${now:%Y-%m-%d}_${now:%H-%M-%S}' \
+# Stage 1: observation autoencoder (encoder + consistency decoder), self-supervised on the play
+# data; actions are not used. See scripts/train/_common.sh for the environment variables.
+#   TASK=wipe NGPU=4 bash scripts/train/run_stage1.sh [extra hydra overrides]
+source "$(dirname "$0")/_common.sh"
+NAME="hapticworld_${TASK}_stage_1"
+RESUME=""; [[ "${FRESH:-0}" == 1 ]] || RESUME="$(latest_ckpt "$NAME")"
+TASK_OVERRIDES=""
+if [[ "$TASK" == wipe ]]; then
+  TASK_OVERRIDES="$(wipe_recon_overrides) algorithm.cond_lr_mult=5.0 algorithm.warmup_steps=2000 dataset.val_horizon=200 experiment.validation.batch_size=1"
+fi
+echo "[stage1] task=$TASK data=$DATA GPUs=$CUDA_VISIBLE_DEVICES batch/gpu=$BATCH ${RESUME:+resume=$RESUME}"
+python main.py +name="$NAME" \
+  "hydra.run.dir=outputs/$NAME/\${now:%Y-%m-%d}_\${now:%H-%M-%S}" \
   ${RESUME:+load=$RESUME} \
-  algorithm=latent_world_model experiment=exp_latent_dyn dataset=real_aloha_dataset \
-  dataset.dataset_dir=data/world_ft_v3 \
+  algorithm=latent_world_model experiment=exp_latent_dyn dataset=play_dataset \
+  "dataset.dataset_dir=$DATA" \
   dataset.horizon=1 dataset.val_horizon=1 \
-  dataset.obs_keys=[camera_1_color] dataset.action_mode=bimanual_push \
+  dataset.obs_keys=[camera_1_color] dataset.action_mode=right_qpos \
   '~dataset.shape_meta.obs.camera_0_color' \
   experiment.training.batch_size="$BATCH" \
   experiment.training.max_steps=1000005 \
@@ -33,9 +29,9 @@ python main.py +name=world_ft_stage_1 \
   +experiment.training.checkpointing.save_top_k=3 \
   +experiment.training.checkpointing.save_last=true \
   experiment.validation.limit_batch=1.0 experiment.validation.batch_size=10 \
-  experiment.validation.val_every_n_step=5000 \
-  algorithm.latent_dim=512 algorithm.action_dim=4 algorithm.training_stage=1 \
+  experiment.validation.val_every_n_step="$(val_every 5000)" \
+  algorithm.latent_dim=512 algorithm.action_dim=8 algorithm.training_stage=1 \
   experiment.num_devices="$NGPU" \
-  wandb.mode=online \
+  wandb.mode="$WANDB_MODE" \
   "algorithm.metrics=$METRICS" \
-  "$@"
+  $TASK_OVERRIDES "${EXTRA[@]}" "$@"

@@ -28,6 +28,8 @@ mask_prev_action: False
 device: cuda
 noise_level: log_normal
 val_render: True
+# frames decoded at once when rendering validation clips; affects memory only, lower it if validation runs out of GPU memory
+render_batch_size: 16
 
 # diffusion-related
 scheduling_matrix: autoregressive
@@ -45,8 +47,19 @@ delta: ${eval:'0.00054 * ${algorithm.num_latent_channel} * ${algorithm.latent_re
 sampling_strategy: uniform
 sampling_strategy_params: []
 
+# dynamic-pixel loss weighting (stages 1/3; 0 = off): amplifies the reconstruction loss on
+# pixels that differ from a precomputed static background (make_static_background.py). Used
+# by the whiteboard-wipe model, whose scene is nearly static.
+dyn_loss_weight: 0.0
+dyn_mask_thresh: 0.10
+dyn_background_path: null
+# stage-1 only: learning-rate multiplier for the conditioning path (ControlNet + encoder)
+cond_lr_mult: 1.0
+# stage-1 fresh runs only: std of a small random init on the ControlNet zero convs (0 = off)
+control_init_scale: 0.0
+
 dynamics:
-  _target_: interactive_world_sim.algorithms.latent_dynamics.models.cm_latent_dynamics.CMLatentDynamics
+  _target_: hapticworld.algorithms.latent_dynamics.models.cm_latent_dynamics.CMLatentDynamics
   action_dim: ${algorithm.action_dim}
   latent_dim: ${algorithm.num_latent_channel}
   dim: 64
@@ -63,7 +76,7 @@ dynamics:
   dtype: ${algorithm.dtype}
 
 noise_scheduler:
-  _target_: interactive_world_sim.utils.cm_utils.DDPMScheduler
+  _target_: hapticworld.utils.cm_utils.DDPMScheduler
   x_shape: ${algorithm.x_shape}
   timesteps: ${algorithm.diffusion.timesteps}
   sampling_timesteps: ${algorithm.diffusion.sampling_timesteps}

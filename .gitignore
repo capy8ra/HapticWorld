@@ -8,4 +8,9 @@ wandb/
 # downloaded assets (fetched by checkpoints/download_assets.py)
 checkpoints/wm/
 checkpoints/policies/
-worldsim/interactive_world_sim/algorithms/common/metrics/i3d_torchscript.pt
+worldsim/hapticworld/algorithms/common/metrics/i3d_torchscript.pt
+# run outputs
+wm_policy_rollouts*/
+wm_rollout*/
+env.local.sh
+_ICRA2027__HapticWorld.pdf

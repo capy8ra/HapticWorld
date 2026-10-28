@@ -1,9 +1,6 @@
-# HapticWorld -- single environment for everything: WM training/inference,
-# ACT policy training, the no-robot simulator demo, AND the real-robot stack.
+# HapticWorld -- one environment for world-model training/inference and ACT policy training.
 #   conda env create -f envs/environment.yaml
 #   conda activate hapticworld
-# process-compose (used by the robot-side rigs) is a standalone binary:
-#   https://github.com/F1bonacc1/process-compose  (not needed for the no-robot demo)
 name: hapticworld
 channels:
   - conda-forge
@@ -21,6 +18,9 @@ dependencies:
       - hydra-core
       - omegaconf
       - wandb
+      - wandb-osh
+      - imageio-ffmpeg
+      - moviepy          # wandb validation videos
       - h5py
       - av
       - opencv-python
@@ -28,14 +28,13 @@ dependencies:
       - scipy
       - matplotlib
       - kornia==0.6.0
-      - redis
-      - typer
-      - python-can          # robot only (CAN motor bus)
-      - pynput              # robot only (keyboard hotkeys)
-      - pyrealsense2        # robot only (head camera)
       - rotary-embedding-torch
       - transforms3d
-      - zarr
+      - zarr<3
       - ipython             # imported by the vendored ACT/DETR code
       - huggingface_hub
+      - colorama
       - git+https://github.com/WangYixuan12/yixuan_utilities.git
+      - imagecodecs
+      - numba
+      # optional, only for dataset.aug_mode != none: git+https://github.com/erjel/imgaug.git@test
