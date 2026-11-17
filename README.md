@@ -1,5 +1,7 @@
 # HapticWorld
 
+[**Paper**](https://arxiv.org/abs/2609.31924) | [**Project Page**](https://haptic-world.github.io/)
+
 Code and checkpoints for **HapticWorld: an Interactive World Simulator with Real-time Torque
 Feedback**. HapticWorld is a learned world model that predicts the next camera frame together
 with the joint torque the robot would feel. This repository covers three tasks (box flipping,
