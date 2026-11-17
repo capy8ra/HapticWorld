@@ -115,7 +115,7 @@ gravity), each with its `:timestamp.npy`.
 
 The world-model backbone builds on the
 [Interactive World Simulator](https://github.com/WangYixuan12/interactive_world_sim) (Wang et al.),
-see `LICENSE`. The torque head, the torque-conditioned rollout and the task pipelines are new.
+see `LICENSE`. 
 
-We used Claude (Anthropic) to help organize this code for release: restructuring the repository,
+We used Claude to help organize this code for release: restructuring the repository,
 removing unused code, writing documentation and testing the release scripts.
